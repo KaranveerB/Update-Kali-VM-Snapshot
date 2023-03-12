@@ -54,3 +54,4 @@ sudo su kali
 fc -p # clear kali user history
 
 echo "==== snapshot update complete ===="
+
