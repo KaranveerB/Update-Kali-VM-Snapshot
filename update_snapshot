@@ -1,0 +1,56 @@
+#!/bin/zsh
+
+# initial setup
+mkdir -p /home/kali/tmp
+mkdir -p /home/kali/srv
+ln -s /usr/share/wordlists /home/kali/wordlists
+
+# system updating
+echo "===== system update ====="
+sudo apt-get update
+sudo apt-get dist-upgrade
+sudo apt-get autoremove
+
+# searchsploit db
+echo "===== searchsploit update ====="
+sudo searchsploit -u
+
+# update srv files
+echo "===== server files update ====="
+cd /home/kali/srv
+
+## PEASS-ng
+echo "===== peass-ng update ====="
+rm peass-ng/linpeas.sh
+rm peass-ng/winPEAS.bat
+rm peass-ng/winPEASany.exe
+
+releaseHead="browser_download_url.*"
+grepOr="\|"
+
+lookup=${releaseHead}"linpeas.sh"
+lookup=${lookup}${grepOr}${releaseHead}"winPEAS.bat"
+lookup=${lookup}${grepOr}${releaseHead}"winPEASany.exe"
+
+# get latest peass-ng release from github
+curl -s https://api.github.com/repos/carlospolop/PEASS-ng/releases/latest \
+| grep ${lookup} \
+| cut -d : -f 2,3 \
+| tr -d \" \
+| wget -i - -P peass-ng
+
+echo "==== deleting downloads ===="
+rm -rfv /home/kali/Downloads/*
+
+echo "==== clearing desktop ===="
+rm -rfv /home/kali/Desktop
+
+echo "==== clearing ~/tmp ====="
+rm -rfv /home/kali/tmp/*
+
+echo "==== clearing zsh history ===="
+fc -p # clear root user history
+sudo su kali
+fc -p # clear kali user history
+
+echo "==== snapshot update complete ===="
