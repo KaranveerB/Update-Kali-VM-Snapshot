@@ -28,7 +28,6 @@ Note that running the script requires root.
 │       ├── linpeas.sh
 │       ├── winPEASany.exe
 │       └── winPEAS.bat
-├── update_snapshot
 ├── Desktop
 └── tmp
 ```
