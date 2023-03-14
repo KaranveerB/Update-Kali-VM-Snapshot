@@ -1,19 +1,28 @@
 #!/bin/zsh
 
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
 # initial setup
 mkdir -p /home/kali/tmp
+chmod 755 /home/kali/tmp
 mkdir -p /home/kali/srv
-ln -s /usr/share/wordlists /home/kali/wordlists
+chmod 755 /home/kali/srv
+ln -s /usr/share/wordlists /home/kali/wordlists 2>/dev/null
+mkdir -p /home/kali/srv/peass-ng
+chmod 755 /home/kali/srv/peass-ng
 
 # system updating
 echo "===== system update ====="
-sudo apt-get update
-sudo apt-get dist-upgrade
-sudo apt-get autoremove
+apt-get update
+apt-get dist-upgrade
+apt-get autoremove
 
 # searchsploit db
 echo "===== searchsploit update ====="
-sudo searchsploit -u
+searchsploit -u
 
 # update srv files
 echo "===== server files update ====="
@@ -21,9 +30,9 @@ cd /home/kali/srv
 
 ## PEASS-ng
 echo "===== peass-ng update ====="
-rm peass-ng/linpeas.sh
-rm peass-ng/winPEAS.bat
-rm peass-ng/winPEASany.exe
+rm peass-ng/linpeas.sh 2>/dev/null
+rm peass-ng/winPEAS.bat 2>/dev/null
+rm peass-ng/winPEASany.exe 2>/dev/null
 
 releaseHead="browser_download_url.*"
 grepOr="\|"
@@ -39,6 +48,10 @@ curl -s https://api.github.com/repos/carlospolop/PEASS-ng/releases/latest \
 | tr -d \" \
 | wget -i - -P peass-ng
 
+chmod 666 peass-ng/linpeas.sh
+chmod 666 peass-ng/winPEAS.bat 
+chmod 666 peass-ng/winPEASany.exe
+
 echo "==== deleting downloads ===="
 rm -rfv /home/kali/Downloads/*
 
@@ -50,8 +63,8 @@ rm -rfv /home/kali/tmp/*
 
 echo "==== clearing zsh history ===="
 fc -p # clear root user history
-sudo su kali
-fc -p # clear kali user history
+
+echo "" > /home/kali/.zsh_history
+echo "" > /root/.zshrc
 
 echo "==== snapshot update complete ===="
-
